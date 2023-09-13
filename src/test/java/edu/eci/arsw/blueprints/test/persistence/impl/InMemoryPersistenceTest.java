@@ -10,8 +10,13 @@ import edu.eci.arsw.blueprints.model.Point;
 import edu.eci.arsw.blueprints.persistence.BlueprintNotFoundException;
 import edu.eci.arsw.blueprints.persistence.BlueprintPersistenceException;
 import edu.eci.arsw.blueprints.persistence.impl.InMemoryBlueprintPersistence;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import edu.eci.arsw.blueprints.persistence.impl.Tuple;
+import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -69,6 +74,83 @@ public class InMemoryPersistenceTest {
         
     }
 
+    @Test
+    public void getBluePrintTest() throws BlueprintNotFoundException, BlueprintPersistenceException {
+        InMemoryBlueprintPersistence ibpp =new InMemoryBlueprintPersistence();
 
-    
+        Blueprint bp1=new Blueprint("Pedro", "First");
+
+        try {
+            ibpp.saveBlueprint(bp1);
+        } catch (BlueprintPersistenceException ex) {
+            fail("Blueprint persistence failed inserting the first blueprint.");
+        }
+
+        List<Blueprint> blueprintList = new ArrayList<Blueprint>();
+        blueprintList.add(bp1);
+
+        try {
+            assertEquals(bp1, ibpp.getBlueprint("Pedro", "First"));
+        } catch (BlueprintNotFoundException e) {
+            fail("Blueprint persistence failed querying the blueprints");
+        }
+    }
+
+    @Test
+    public void getBlueprintsByAuthorTest() throws BlueprintNotFoundException, BlueprintPersistenceException {
+        InMemoryBlueprintPersistence ibpp=new InMemoryBlueprintPersistence();
+
+        Blueprint bp1=new Blueprint("Maria", "First");
+        Blueprint bp2=new Blueprint("Pedro", "Second");
+        Blueprint bp3=new Blueprint("Maria", "Third");
+
+        try {
+            ibpp.saveBlueprint(bp1);
+            ibpp.saveBlueprint(bp2);
+            ibpp.saveBlueprint(bp3);
+        } catch (BlueprintPersistenceException ex) {
+            fail("Blueprint persistence failed inserting the first blueprint.");
+        }
+
+        Set<Blueprint> blueprintList = new HashSet<>();
+        blueprintList.add(bp1);
+        blueprintList.add(bp3);
+
+        try {
+            assertEquals(blueprintList, ibpp.getBlueprintsByAuthor("Maria"));
+        } catch (BlueprintNotFoundException e) {
+            fail("Blueprint persistence failed querying the blueprints by the current author.");
+        }
+    }
+
+    @Test
+    public void getAllBlueprintsTest()  {
+        InMemoryBlueprintPersistence ibpp=new InMemoryBlueprintPersistence();
+
+        Blueprint bp1=new Blueprint("Maria", "First");
+        Blueprint bp2=new Blueprint("Pedro", "Second");
+        Blueprint bp3=new Blueprint("Maria", "Third");
+        Point[] pts=new Point[]{new Point(140, 140),new Point(115, 115)};
+        Blueprint bp=new Blueprint("_authorname_", "_bpname_ ",pts);
+
+        try {
+            ibpp.saveBlueprint(bp1);
+            ibpp.saveBlueprint(bp2);
+            ibpp.saveBlueprint(bp3);
+        } catch (BlueprintPersistenceException ex) {
+            fail("Blueprint persistence failed inserting the first blueprint.");
+        }
+
+        Set<Blueprint> blueprintList = new HashSet<>();
+        blueprintList.add(bp1);
+        blueprintList.add(bp2);
+        blueprintList.add(bp3);
+
+        try {
+            Assert.assertEquals(blueprintList, ibpp.getAllBlueprints());
+        } catch (BlueprintNotFoundException e) {
+            fail("Blueprint persistence failed querying the blueprints.");
+        }
+    }
+
 }
